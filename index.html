@@ -1,0 +1,318 @@
+<html class="hydrated"><head>
+    <base href="https://websim.ai/voice-text-app/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice to Text &amp; Text to Speech App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: rgb(139, 195, 255);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: rgb(139, 195, 255);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            border: 2px solid rgb(139, 195, 255);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: rgb(139, 195, 255);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            display: block;
+            margin: 10px auto;
+            width: 200px;
+        }
+
+        button:hover {
+            background-color: rgb(109, 165, 225);
+            transform: scale(1.05);
+        }
+
+        #status {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            color: rgb(139, 195, 255);
+        }
+
+        .wave {
+            width: 100%;
+            height: 60px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .wave::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='rgb(139, 195, 255)' fill-opacity='0.5' d='M0,96L48,112C96,128,192,160,288,181.3C384,203,480,213,576,192C672,171,768,117,864,96C960,75,1056,85,1152,101.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+            background-size: 1440px 60px;
+            animation: wave 10s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1440px; }
+        }
+
+        #language-select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid rgb(139, 195, 255);
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: white;
+        }
+
+        #voice-select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid rgb(139, 195, 255);
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: white;
+        }
+
+        .settings-toggle {
+            background-color: ;
+            margin-bottom: 20px;
+        }
+
+        .settings-panel {
+            display: none;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .slider-container label {
+            flex: 1;
+        }
+
+        .slider-container input {
+            flex: 2;
+        }
+
+        #pitch-value, #rate-value {
+            flex: 0 0 30px;
+            text-align: right;
+        }
+
+       
+    </style>
+<script src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/sqrx-email-notifier.esm.js" type="module" data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/" data-stencil-namespace="sqrx-email-notifier" id="sqrx-email-notifier"></script><script src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/sqrx-dialog.esm.js" type="module" data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/" data-stencil-namespace="sqrx-dialog" id="sqrx-dialog"></script><script src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/sqrx-notification-bar.esm.js" type="module" data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/" data-stencil-namespace="sqrx-notification-bar" id="sqrx-notification-bar"></script></head>
+<body data-new-gr-c-s-check-loaded="14.1195.0" data-gr-ext-installed="">
+    <div class="container">
+        <h1>Voice to Text &amp; Text to Speech</h1>
+        <div class="wave"></div>
+        <button class="settings-toggle" id="toggle-settings">Show/Hide Settings</button>
+        <div class="settings-panel" id="settings-panel">
+            <select id="language-select">
+                <option value="en-US">English (US)</option>
+                <option value="es-ES">Spanish (Spain)</option>
+                <option value="fr-FR">French (France)</option>
+                <option value="de-DE">German (Germany)</option>
+                <option value="it-IT">Italian (Italy)</option>
+                <option value="ja-JP">Japanese (Japan)</option>
+            </select>
+            <select id="voice-select"><option value="0">Daniel (English (United Kingdom)) (en-GB)</option><option value="1">Aaron (en-US)</option><option value="2">Albert (en-US)</option><option value="3">Alice (it-IT)</option><option value="4">Alva (sv-SE)</option><option value="5">Amélie (fr-CA)</option><option value="6">Amira (ms-MY)</option><option value="7">Anna (de-DE)</option><option value="8">Arthur (en-GB)</option><option value="9">Bad News (en-US)</option><option value="10">Bahh (en-US)</option><option value="11">Bells (en-US)</option><option value="12">Boing (en-US)</option><option value="13">Bubbles (en-US)</option><option value="14">Carmit (he-IL)</option><option value="15">Catherine (en-AU)</option><option value="16">Cellos (en-US)</option><option value="17">Damayanti (id-ID)</option><option value="18">Daniel (French (France)) (fr-FR)</option><option value="19">Daria (bg-BG)</option><option value="20">Eddy (German (Germany)) (de-DE)</option><option value="21">Eddy (English (United Kingdom)) (en-GB)</option><option value="22">Eddy (English (United States)) (en-US)</option><option value="23">Eddy (Spanish (Spain)) (es-ES)</option><option value="24">Eddy (Spanish (Mexico)) (es-MX)</option><option value="25">Eddy (Finnish (Finland)) (fi-FI)</option><option value="26">Eddy (French (Canada)) (fr-CA)</option><option value="27">Eddy (French (France)) (fr-FR)</option><option value="28">Eddy (Italian (Italy)) (it-IT)</option><option value="29">Eddy (Portuguese (Brazil)) (pt-BR)</option><option value="30">Ellen (nl-BE)</option><option value="31">Flo (German (Germany)) (de-DE)</option><option value="32">Flo (English (United Kingdom)) (en-GB)</option><option value="33">Flo (English (United States)) (en-US)</option><option value="34">Flo (Spanish (Spain)) (es-ES)</option><option value="35">Flo (Spanish (Mexico)) (es-MX)</option><option value="36">Flo (Finnish (Finland)) (fi-FI)</option><option value="37">Flo (French (Canada)) (fr-CA)</option><option value="38">Flo (French (France)) (fr-FR)</option><option value="39">Flo (Italian (Italy)) (it-IT)</option><option value="40">Flo (Portuguese (Brazil)) (pt-BR)</option><option value="41">Fred (en-US)</option><option value="42">Good News (en-US)</option><option value="43">Gordon (en-AU)</option><option value="44">Grandma (German (Germany)) (de-DE)</option><option value="45">Grandma (English (United Kingdom)) (en-GB)</option><option value="46">Grandma (English (United States)) (en-US)</option><option value="47">Grandma (Spanish (Spain)) (es-ES)</option><option value="48">Grandma (Spanish (Mexico)) (es-MX)</option><option value="49">Grandma (Finnish (Finland)) (fi-FI)</option><option value="50">Grandma (French (Canada)) (fr-CA)</option><option value="51">Grandma (French (France)) (fr-FR)</option><option value="52">Grandma (Italian (Italy)) (it-IT)</option><option value="53">Grandma (Portuguese (Brazil)) (pt-BR)</option><option value="54">Grandpa (German (Germany)) (de-DE)</option><option value="55">Grandpa (English (United Kingdom)) (en-GB)</option><option value="56">Grandpa (English (United States)) (en-US)</option><option value="57">Grandpa (Spanish (Spain)) (es-ES)</option><option value="58">Grandpa (Spanish (Mexico)) (es-MX)</option><option value="59">Grandpa (Finnish (Finland)) (fi-FI)</option><option value="60">Grandpa (French (Canada)) (fr-CA)</option><option value="61">Grandpa (French (France)) (fr-FR)</option><option value="62">Grandpa (Italian (Italy)) (it-IT)</option><option value="63">Grandpa (Portuguese (Brazil)) (pt-BR)</option><option value="64">Hattori (ja-JP)</option><option value="65">Helena (de-DE)</option><option value="66">Ioana (ro-RO)</option><option value="67">Jacques (fr-FR)</option><option value="68">Jester (en-US)</option><option value="69">Joana (pt-PT)</option><option value="70">Junior (en-US)</option><option value="71">Kanya (th-TH)</option><option value="72">Karen (en-AU)</option><option value="73">Kathy (en-US)</option><option value="74">Kyoko (ja-JP)</option><option value="75">Lana (hr-HR)</option><option value="76">Laura (sk-SK)</option><option value="77">Lekha (hi-IN)</option><option value="78">Lesya (uk-UA)</option><option value="79">Li-Mu (zh-CN)</option><option value="80">Linh (vi-VN)</option><option value="81">Luciana (pt-BR)</option><option value="82">Majed (ar-001)</option><option value="83">Marie (fr-FR)</option><option value="84">Martha (en-GB)</option><option value="85">Martin (de-DE)</option><option value="86">Meijia (zh-TW)</option><option value="87">Melina (el-GR)</option><option value="88">Milena (ru-RU)</option><option value="89">Moira (en-IE)</option><option value="90">Montse (ca-ES)</option><option value="91">Mónica (es-ES)</option><option value="92">Nicky (en-US)</option><option value="93">Nora (nb-NO)</option><option value="94">O-Ren (ja-JP)</option><option value="95">Organ (en-US)</option><option value="96">Paulina (es-MX)</option><option value="97">Ralph (en-US)</option><option value="98">Reed (German (Germany)) (de-DE)</option><option value="99">Reed (English (United Kingdom)) (en-GB)</option><option value="100">Reed (English (United States)) (en-US)</option><option value="101">Reed (Spanish (Spain)) (es-ES)</option><option value="102">Reed (Spanish (Mexico)) (es-MX)</option><option value="103">Reed (Finnish (Finland)) (fi-FI)</option><option value="104">Reed (French (Canada)) (fr-CA)</option><option value="105">Reed (Italian (Italy)) (it-IT)</option><option value="106">Reed (Portuguese (Brazil)) (pt-BR)</option><option value="107">Rishi (en-IN)</option><option value="108">Rocko (German (Germany)) (de-DE)</option><option value="109">Rocko (English (United Kingdom)) (en-GB)</option><option value="110">Rocko (English (United States)) (en-US)</option><option value="111">Rocko (Spanish (Spain)) (es-ES)</option><option value="112">Rocko (Spanish (Mexico)) (es-MX)</option><option value="113">Rocko (Finnish (Finland)) (fi-FI)</option><option value="114">Rocko (French (Canada)) (fr-CA)</option><option value="115">Rocko (French (France)) (fr-FR)</option><option value="116">Rocko (Italian (Italy)) (it-IT)</option><option value="117">Rocko (Portuguese (Brazil)) (pt-BR)</option><option value="118">Samantha (en-US)</option><option value="119">Sandy (German (Germany)) (de-DE)</option><option value="120">Sandy (English (United Kingdom)) (en-GB)</option><option value="121">Sandy (English (United States)) (en-US)</option><option value="122">Sandy (Spanish (Spain)) (es-ES)</option><option value="123">Sandy (Spanish (Mexico)) (es-MX)</option><option value="124">Sandy (Finnish (Finland)) (fi-FI)</option><option value="125">Sandy (French (Canada)) (fr-CA)</option><option value="126">Sandy (French (France)) (fr-FR)</option><option value="127">Sandy (Italian (Italy)) (it-IT)</option><option value="128">Sandy (Portuguese (Brazil)) (pt-BR)</option><option value="129">Sara (da-DK)</option><option value="130">Satu (fi-FI)</option><option value="131">Shelley (German (Germany)) (de-DE)</option><option value="132">Shelley (English (United Kingdom)) (en-GB)</option><option value="133">Shelley (English (United States)) (en-US)</option><option value="134">Shelley (Spanish (Spain)) (es-ES)</option><option value="135">Shelley (Spanish (Mexico)) (es-MX)</option><option value="136">Shelley (Finnish (Finland)) (fi-FI)</option><option value="137">Shelley (French (Canada)) (fr-CA)</option><option value="138">Shelley (French (France)) (fr-FR)</option><option value="139">Shelley (Italian (Italy)) (it-IT)</option><option value="140">Shelley (Portuguese (Brazil)) (pt-BR)</option><option value="141">Sinji (zh-HK)</option><option value="142">Superstar (en-US)</option><option value="143">Tessa (en-ZA)</option><option value="144">Thomas (fr-FR)</option><option value="145">Tingting (zh-CN)</option><option value="146">Trinoids (en-US)</option><option value="147">Tünde (hu-HU)</option><option value="148">Whisper (en-US)</option><option value="149">Wobble (en-US)</option><option value="150">Xander (nl-NL)</option><option value="151">Yelda (tr-TR)</option><option value="152">Yu-shu (zh-CN)</option><option value="153">Yuna (ko-KR)</option><option value="154">Zarvox (en-US)</option><option value="155">Zosia (pl-PL)</option><option value="156">Zuzana (cs-CZ)</option><option value="157">Google Deutsch (de-DE)</option><option value="158">Google US English (en-US)</option><option value="159">Google UK English Female (en-GB)</option><option value="160">Google UK English Male (en-GB)</option><option value="161">Google español (es-ES)</option><option value="162">Google español de Estados Unidos (es-US)</option><option value="163">Google français (fr-FR)</option><option value="164">Google हिन्दी (hi-IN)</option><option value="165">Google Bahasa Indonesia (id-ID)</option><option value="166">Google italiano (it-IT)</option><option value="167">Google 日本語 (ja-JP)</option><option value="168">Google 한국의 (ko-KR)</option><option value="169">Google Nederlands (nl-NL)</option><option value="170">Google polski (pl-PL)</option><option value="171">Google português do Brasil (pt-BR)</option><option value="172">Google русский (ru-RU)</option><option value="173">Google&nbsp;普通话（中国大陆） (zh-CN)</option><option value="174">Google&nbsp;粤語（香港） (zh-HK)</option><option value="175">Google 國語（臺灣） (zh-TW)</option></select>
+            <div class="slider-container">
+                <label for="pitch-slider">Pitch:</label>
+                <input type="range" id="pitch-slider" min="0.5" max="2" step="0.1" value="1">
+                <span id="pitch-value">1</span>
+            </div>
+            <div class="slider-container">
+                <label for="rate-slider">Rate:</label>
+                <input type="range" id="rate-slider" min="0.5" max="2" step="0.1" value="1">
+                <span id="rate-value">1</span>
+            </div>
+        </div>
+        <textarea id="text-input" placeholder="Speak or type your text here..."></textarea>
+        <button id="start-recognition">Start Voice Recognition</button>
+        <button id="stop-recognition" style="display: none;">Stop Voice Recognition</button>
+        <button id="speak-text">Speak Text</button>
+        <p id="status"></p>
+        
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const textInput = $('#text-input');
+            const startRecognitionBtn = $('#start-recognition');
+            const stopRecognitionBtn = $('#stop-recognition');
+            const speakTextBtn = $('#speak-text');
+            const status = $('#status');
+            const languageSelect = $('#language-select');
+            const voiceSelect = $('#voice-select');
+            const pitchSlider = $('#pitch-slider');
+            const rateSlider = $('#rate-slider');
+            const pitchValue = $('#pitch-value');
+            const rateValue = $('#rate-value');
+            const toggleSettingsBtn = $('#toggle-settings');
+            const settingsPanel = $('#settings-panel');
+            const downloadSourceBtn = $('#download-source');
+
+            let recognition;
+            let synth;
+
+            function initSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window) {
+                    recognition = new webkitSpeechRecognition();
+                    recognition.continuous = true;
+                    recognition.interimResults = true;
+
+                    recognition.onresult = function(event) {
+                        let interimTranscript = '';
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) {
+                                textInput.val(textInput.val() + event.results[i][0].transcript);
+                            } else {
+                                interimTranscript += event.results[i][0].transcript;
+                            }
+                        }
+                        status.text(interimTranscript);
+                    };
+
+                    recognition.onerror = function(event) {
+                        status.text('Error occurred in recognition: ' + event.error);
+                    };
+                } else {
+                    status.text('Web Speech API is not supported in this browser.');
+                }
+            }
+
+            function initSpeechSynthesis() {
+                if ('speechSynthesis' in window) {
+                    synth = window.speechSynthesis;
+                    populateVoiceList();
+                    synth.onvoiceschanged = populateVoiceList;
+                } else {
+                    status.text('Text-to-Speech is not supported in this browser.');
+                }
+            }
+
+            function populateVoiceList() {
+                const voices = synth.getVoices();
+                voiceSelect.empty();
+                voices.forEach((voice, index) => {
+                    voiceSelect.append($('<option>', {
+                        value: index,
+                        text: `${voice.name} (${voice.lang})`
+                    }));
+                });
+            }
+
+            startRecognitionBtn.on('click', function() {
+                if (recognition) {
+                    recognition.lang = languageSelect.val();
+                    recognition.start();
+                    startRecognitionBtn.hide();
+                    stopRecognitionBtn.show();
+                    status.text('Listening...');
+                } else {
+                    status.text('Speech recognition is not available.');
+                }
+            });
+
+            stopRecognitionBtn.on('click', function() {
+                if (recognition) {
+                    recognition.stop();
+                    stopRecognitionBtn.hide();
+                    startRecognitionBtn.show();
+                    status.text('Stopped listening.');
+                }
+            });
+
+            speakTextBtn.on('click', function() {
+                if (synth) {
+                    const text = textInput.val();
+                    if (text) {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        const voices = synth.getVoices();
+                        utterance.voice = voices[voiceSelect.val()];
+                        utterance.pitch = parseFloat(pitchSlider.val());
+                        utterance.rate = parseFloat(rateSlider.val());
+                        synth.speak(utterance);
+                        status.text('Speaking...');
+                        utterance.onend = function() {
+                            status.text('Finished speaking.');
+                        };
+                    } else {
+                        status.text('Please enter some text to speak.');
+                    }
+                } else {
+                    status.text('Text-to-Speech is not available.');
+                }
+            });
+
+            languageSelect.on('change', function() {
+                if (recognition) {
+                    recognition.lang = this.value;
+                }
+            });
+
+            pitchSlider.on('input', function() {
+                pitchValue.text(this.value);
+            });
+
+            rateSlider.on('input', function() {
+                rateValue.text(this.value);
+            });
+
+            toggleSettingsBtn.on('click', function() {
+                settingsPanel.toggle();
+            });
+
+
+            initSpeechRecognition();
+            initSpeechSynthesis();
+        });
+    </script>
+
+<div id="sqrx-content-container"><div class="squarex_ext_modal"><div class="squarex_ext_dialog-container"></div></div></div></body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
