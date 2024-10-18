@@ -1,4 +1,4 @@
-<script>
+
 $(document).ready(function() {
     const textInput = $('#text-input');
     const startRecognitionBtn = $('#start-recognition');
@@ -130,4 +130,3 @@ $(document).ready(function() {
     initSpeechRecognition();
     initSpeechSynthesis();
 });
-</script>
