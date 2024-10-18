@@ -2,9 +2,149 @@
     <base href="https://websim.ai/voice-text-app/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./style.css">
     <title>Voice to Text &amp; Text to Speech App</title>
-   
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: rgb(139, 195, 255);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: rgb(139, 195, 255);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            border: 2px solid rgb(139, 195, 255);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: rgb(139, 195, 255);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            display: block;
+            margin: 10px auto;
+            width: 200px;
+        }
+
+        button:hover {
+            background-color: rgb(109, 165, 225);
+            transform: scale(1.05);
+        }
+
+        #status {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+            color: rgb(139, 195, 255);
+        }
+
+        .wave {
+            width: 100%;
+            height: 60px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .wave::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='rgb(139, 195, 255)' fill-opacity='0.5' d='M0,96L48,112C96,128,192,160,288,181.3C384,203,480,213,576,192C672,171,768,117,864,96C960,75,1056,85,1152,101.3C1248,117,1344,139,1392,149.3L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+            background-size: 1440px 60px;
+            animation: wave 10s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1440px; }
+        }
+
+        #language-select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid rgb(139, 195, 255);
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: white;
+        }
+
+        #voice-select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid rgb(139, 195, 255);
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: white;
+        }
+
+        .settings-toggle {
+            background-color: ;
+            margin-bottom: 20px;
+        }
+
+        .settings-panel {
+            display: none;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .slider-container label {
+            flex: 1;
+        }
+
+        .slider-container input {
+            flex: 2;
+        }
+
+        #pitch-value, #rate-value {
+            flex: 0 0 30px;
+            text-align: right;
+        }
+
+       
+    </style>
 <script src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/sqrx-email-notifier.esm.js" type="module" data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-email-notifier/" data-stencil-namespace="sqrx-email-notifier" id="sqrx-email-notifier"></script><script src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/sqrx-dialog.esm.js" type="module" data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-dialog/" data-stencil-namespace="sqrx-dialog" id="sqrx-dialog"></script><script src="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/sqrx-notification-bar.esm.js" type="module" data-resources-url="chrome-extension://kapjaoifikajdcdehfdlmojlepfpkpoe/sqrx-notification-bar/" data-stencil-namespace="sqrx-notification-bar" id="sqrx-notification-bar"></script></head>
 <body data-new-gr-c-s-check-loaded="14.1195.0" data-gr-ext-installed="">
     <div class="container">
@@ -40,6 +180,139 @@
         
     </div>
 
-    <script src="./script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const textInput = $('#text-input');
+            const startRecognitionBtn = $('#start-recognition');
+            const stopRecognitionBtn = $('#stop-recognition');
+            const speakTextBtn = $('#speak-text');
+            const status = $('#status');
+            const languageSelect = $('#language-select');
+            const voiceSelect = $('#voice-select');
+            const pitchSlider = $('#pitch-slider');
+            const rateSlider = $('#rate-slider');
+            const pitchValue = $('#pitch-value');
+            const rateValue = $('#rate-value');
+            const toggleSettingsBtn = $('#toggle-settings');
+            const settingsPanel = $('#settings-panel');
+            const downloadSourceBtn = $('#download-source');
+
+            let recognition;
+            let synth;
+
+            function initSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window) {
+                    recognition = new webkitSpeechRecognition();
+                    recognition.continuous = true;
+                    recognition.interimResults = true;
+
+                    recognition.onresult = function(event) {
+                        let interimTranscript = '';
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) {
+                                textInput.val(textInput.val() + event.results[i][0].transcript);
+                            } else {
+                                interimTranscript += event.results[i][0].transcript;
+                            }
+                        }
+                        status.text(interimTranscript);
+                    };
+
+                    recognition.onerror = function(event) {
+                        status.text('Error occurred in recognition: ' + event.error);
+                    };
+                } else {
+                    status.text('Web Speech API is not supported in this browser.');
+                }
+            }
+
+            function initSpeechSynthesis() {
+                if ('speechSynthesis' in window) {
+                    synth = window.speechSynthesis;
+                    populateVoiceList();
+                    synth.onvoiceschanged = populateVoiceList;
+                } else {
+                    status.text('Text-to-Speech is not supported in this browser.');
+                }
+            }
+
+            function populateVoiceList() {
+                const voices = synth.getVoices();
+                voiceSelect.empty();
+                voices.forEach((voice, index) => {
+                    voiceSelect.append($('<option>', {
+                        value: index,
+                        text: `${voice.name} (${voice.lang})`
+                    }));
+                });
+            }
+
+            startRecognitionBtn.on('click', function() {
+                if (recognition) {
+                    recognition.lang = languageSelect.val();
+                    recognition.start();
+                    startRecognitionBtn.hide();
+                    stopRecognitionBtn.show();
+                    status.text('Listening...');
+                } else {
+                    status.text('Speech recognition is not available.');
+                }
+            });
+
+            stopRecognitionBtn.on('click', function() {
+                if (recognition) {
+                    recognition.stop();
+                    stopRecognitionBtn.hide();
+                    startRecognitionBtn.show();
+                    status.text('Stopped listening.');
+                }
+            });
+
+            speakTextBtn.on('click', function() {
+                if (synth) {
+                    const text = textInput.val();
+                    if (text) {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        const voices = synth.getVoices();
+                        utterance.voice = voices[voiceSelect.val()];
+                        utterance.pitch = parseFloat(pitchSlider.val());
+                        utterance.rate = parseFloat(rateSlider.val());
+                        synth.speak(utterance);
+                        status.text('Speaking...');
+                        utterance.onend = function() {
+                            status.text('Finished speaking.');
+                        };
+                    } else {
+                        status.text('Please enter some text to speak.');
+                    }
+                } else {
+                    status.text('Text-to-Speech is not available.');
+                }
+            });
+
+            languageSelect.on('change', function() {
+                if (recognition) {
+                    recognition.lang = this.value;
+                }
+            });
+
+            pitchSlider.on('input', function() {
+                pitchValue.text(this.value);
+            });
+
+            rateSlider.on('input', function() {
+                rateValue.text(this.value);
+            });
+
+            toggleSettingsBtn.on('click', function() {
+                settingsPanel.toggle();
+            });
+
+
+            initSpeechRecognition();
+            initSpeechSynthesis();
+        });
+    </script>
 
 <div id="sqrx-content-container"><div class="squarex_ext_modal"><div class="squarex_ext_dialog-container"></div></div></div></body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>

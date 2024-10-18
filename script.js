@@ -1,4 +1,3 @@
-
 $(document).ready(function() {
     const textInput = $('#text-input');
     const startRecognitionBtn = $('#start-recognition');

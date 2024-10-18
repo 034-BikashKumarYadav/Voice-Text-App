@@ -1,5 +1,5 @@
-
-        body {
+<style>
+         body {
             font-family: 'Arial', sans-serif;
             background: rgb(139, 195, 255);
             margin: 0;
@@ -138,4 +138,4 @@
             text-align: right;
         }
 
-       
+       </style>
